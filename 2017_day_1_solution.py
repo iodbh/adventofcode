@@ -2,17 +2,12 @@ from utils import get_input
 
 def solution_1_1(input):
     input = [int(x) for x in input.strip()]
-    last = len(input)-1
     output = 0
     for idx, val in enumerate(input):
-        if idx < last:
-            next_idx = idx + 1
-        else:
-            next_idx = 0
+        next_idx = (idx + 1)%len(input)
         if val == input[next_idx]:
-            output += val
-        if next_idx == 0:
-            return output
+                output += val
+    return output
 
 def solution_1_2(input):
     input = [int(x) for x in input.strip()]

@@ -42,21 +42,22 @@ def parse_input(input):
 def solution_8_1(input):
     cpu = CPU()
     for instruction in input:
-        print(instruction)
         cpu.execute(instruction)
     return max(cpu.registers.values())
 
 
 def solution_8_2(input):
-    ...
+    output = 0
+    cpu = CPU()
+    for instruction in input:
+        cpu.execute(instruction)
+        max_value = max(cpu.registers.values())
+        if max_value > output:
+            output = max_value
+    return output
 
 
 if __name__ == '__main__':
 
-    test_input = """b inc 5 if a > 1
-a inc 1 if b < 5
-c dec -10 if a >= 1
-c inc -20 if c == 10""".split('\n')
-
     print(solution_8_1(parse_input(get_input(2017, 8))))
-    #print(solution_8_2(parse_input(get_input(2017, 8))))
+    print(solution_8_2(parse_input(get_input(2017, 8))))

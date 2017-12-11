@@ -1,5 +1,4 @@
 from utils import get_input
-from collections import namedtuple
 import collections
 
 

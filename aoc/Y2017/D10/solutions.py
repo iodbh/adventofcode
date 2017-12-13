@@ -1,5 +1,4 @@
-from utils import get_input
-from collections import namedtuple
+from ...classes import Solution
 
 
 def hash1(lenghts):
@@ -52,17 +51,17 @@ def hash2(lenghts, l, current_position, skip_size):
     return l, current_position, skip_size
 
 
-def parse_input(input):
-    return [i.strip() for i in input[0].split(',')]
+def parse_input(data):
+    return [i.strip() for i in data[0].split(',')]
 
 
-def solution_10_1(input):
-    hashed = hash1(input)
+def phase1(data):
+    hashed = hash1(data)
     return hashed[0] * hashed[1]
 
 
-def solution_10_2(input):
-    input_string = ','.join(input)
+def phase2(data):
+    input_string = ','.join(data)
     lenghts = decode_input(input_string)
     current_position = skip_size = 0
     l = list(range(256))
@@ -77,6 +76,5 @@ def solution_10_2(input):
         dense.append(dense_block)
     return ''.join(f'{d:2x}' for d in dense).replace(' ', '0')
 
-if __name__ == '__main__':
-    print(solution_10_1(parse_input(get_input(2017, 10))))
-    print(solution_10_2(parse_input(get_input(2017, 10))))
+
+solution = Solution(2017, 10, phase1=phase1, phase2=phase2, input_parser=parse_input)

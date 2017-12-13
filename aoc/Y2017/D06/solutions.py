@@ -1,8 +1,8 @@
-from utils import get_input
+from ...classes import Solution
 
 
-def parse_input(input):
-    return [int(x) for x in input[0].split()]
+def parse_input(data):
+    return [int(x) for x in data[0].split()]
 
 
 def redistribute(memory):
@@ -17,27 +17,29 @@ def redistribute(memory):
     return tuple(memory)
 
 
-def solution_6_1(input):
+def get_solution_data(data):
     known_states = set()
-    length = len(input)
+    length = len(data)
     while True:
         nstates = len(known_states)
-        known_states.add(redistribute(input))
+        known_states.add(redistribute(data))
         if len(known_states) == nstates:
-            return nstates+1, input
+            return nstates + 1, data
 
 
-def solution_6_2(input):
+def phase1(data):
+    return get_solution_data(data)[0]
+
+
+def phase2(data):
     count = 0
-    new_state = solution_6_1(input)[1]
+    new_state = get_solution_data(data)[1]
     expected_state = tuple(new_state)
     while True:
         count += 1
-        state = redistribute(input)
+        state = redistribute(data)
         if state == expected_state:
             return count
 
 
-if __name__ == '__main__':
-    print(solution_6_1(parse_input(get_input(2017, 6)))[0])
-    print(solution_6_2(parse_input(get_input(2017, 6))))
+solution = Solution(2017, 6, phase1=phase1, phase2=phase2, input_parser=parse_input)

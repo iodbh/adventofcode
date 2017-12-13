@@ -1,5 +1,4 @@
-from utils import get_input
-from collections import namedtuple
+from ...classes import Solution
 
 STATE_INIT = 0
 STATE_GROUP = 1
@@ -48,22 +47,20 @@ class StreamParser:
                     self._switch_state(STATE_GARBAGE)
 
 
-def parse_input(input):
-    return input[0]
+def parse_input(data):
+    return data[0]
 
 
-def solution_9_1(input):
+def phase1(data):
     parser = StreamParser()
-    parser.parse(input)
+    parser.parse(data)
     return parser.score
 
 
-def solution_9_2(input):
+def phase2(data):
     parser = StreamParser()
-    parser.parse(input)
+    parser.parse(data)
     return parser.garbage_count
 
 
-if __name__ == '__main__':
-    print(solution_9_1(parse_input(get_input(2017, 9))))
-    print(solution_9_2(parse_input(get_input(2017, 9))))
+solution = Solution(2017, 9, phase1=phase1, phase2=phase2, input_parser=parse_input)

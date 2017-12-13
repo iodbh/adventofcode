@@ -1,4 +1,4 @@
-from utils import get_input
+from ...classes import Solution
 from collections import namedtuple
 
 Instruction = namedtuple("Instruction", "register operation value left operator right")
@@ -31,25 +31,28 @@ class CPU:
         if self.test(instruction.left, instruction.operator, instruction.right):
             self.register_operation(instruction.register, instruction.operation, instruction.value)
 
-def parse_input(input):
-    for line in input:
+
+def parse_input(data):
+    output = []
+    for line in data:
         elements = [i.strip() for i in line.split() if "if" not in i]
         elements[2] = int(elements[2])
         elements[-1] = int(elements[-1])
-        yield Instruction(*elements)
+        output.append(Instruction(*elements))
+    return output
 
 
-def solution_8_1(input):
+def phase1(data):
     cpu = CPU()
-    for instruction in input:
+    for instruction in data:
         cpu.execute(instruction)
     return max(cpu.registers.values())
 
 
-def solution_8_2(input):
+def phase2(data):
     output = 0
     cpu = CPU()
-    for instruction in input:
+    for instruction in data:
         cpu.execute(instruction)
         max_value = max(cpu.registers.values())
         if max_value > output:
@@ -57,7 +60,4 @@ def solution_8_2(input):
     return output
 
 
-if __name__ == '__main__':
-
-    print(solution_8_1(parse_input(get_input(2017, 8))))
-    print(solution_8_2(parse_input(get_input(2017, 8))))
+solution = Solution(2017, 8, phase1=phase1, phase2=phase2, input_parser=parse_input)

@@ -1,4 +1,5 @@
-from utils import get_input, Queue, Graph
+from ...classes import Solution
+from ..classes import Graph
 
 
 def calculate_goal_coordinates(path):
@@ -82,23 +83,21 @@ def path_from_origin(destination):
     return steps
 
 
-def parse_input(input):
-    return [i.strip().upper() for i in input[0].split(',')]
+def parse_input(data):
+    return [i.strip().upper() for i in data[0].split(',')]
 
 
-def solution_11_1(input):
-    goal = calculate_goal_coordinates(input)
+def phase1(data):
+    goal = calculate_goal_coordinates(data)
     return Hex.hex_distance(Hex(0, 0, 0), goal)
 
 
-def solution_11_2(input):
+def phase2(data):
     distances = []
-    for idx in range(len(input)):
-        pos = calculate_goal_coordinates(input[:len(input)-idx])
+    for idx in range(len(data)):
+        pos = calculate_goal_coordinates(data[:len(data) - idx])
         distances.append(Hex.hex_distance(Hex(0, 0, 0), pos))
     return max(distances)
 
 
-if __name__ == '__main__':
-    print(solution_11_1(parse_input(get_input(2017, 11))))
-    print(solution_11_2(parse_input(get_input(2017, 11))))
+solution = Solution(2017, 11, phase1=phase1, phase2=phase2, input_parser=parse_input)

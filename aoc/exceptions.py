@@ -1,0 +1,6 @@
+class AOCException(Exception):
+    ...
+
+
+class AOCNoInputException(AOCException):
+    ...

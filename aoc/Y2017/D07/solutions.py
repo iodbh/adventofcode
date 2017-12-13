@@ -1,4 +1,4 @@
-from utils import get_input
+from ...classes import Solution
 from collections import namedtuple
 
 FlatNode = namedtuple("FlatNode", "name weight children")
@@ -58,8 +58,8 @@ def build_tree(association_dict):
     return tree
 
 
-def parse_input(input):
-    for raw_data in input:
+def parse_input(data):
+    for raw_data in data:
         children = None
         if "->" in raw_data:
             raw_data, children_str = raw_data.split("->")
@@ -69,17 +69,15 @@ def parse_input(input):
 
         yield FlatNode(name.strip(), weight, children)
 
-def solution_7_1(input):
-    tree = build_tree(make_association_dict(list(input)))
+
+def phase1(data):
+    tree = build_tree(make_association_dict(list(data)))
     return list(tree.keys())[0]
 
 
-def solution_7_2(input):
-    tree = build_tree(make_association_dict(list(input)))
+def phase2(data):
+    tree = build_tree(make_association_dict(list(data)))
     return get_imbalance(tree[list(tree.keys())[0]])
 
 
-if __name__ == '__main__':
-
-    print(solution_7_1(parse_input(get_input(2017, 7))))
-    print(solution_7_2(parse_input(get_input(2017, 7))))
+solution = Solution(2017, 7, phase1=phase1, input_parser=parse_input)

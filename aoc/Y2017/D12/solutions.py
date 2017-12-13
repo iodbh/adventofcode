@@ -1,9 +1,10 @@
-from utils import get_input, Graph
+from ...classes import Solution
+from ..classes import Graph
 
 
-def parse_input(input):
+def parse_input(data):
     output = {}
-    for line in input:
+    for line in data:
         node, edges = line.split(' <-> ')
         output[node] = set(edge.strip() for edge in edges.split(', '))
     return output
@@ -16,19 +17,17 @@ def consolidate_graph(data):
         return data
 
 
-def solution_12_1(input):
+def phase1(data):
     g = Graph()
-    g.edges = consolidate_graph(input)
+    g.edges = consolidate_graph(data)
     res = [n for n in g.edges if g.has_path(n, '0')]
     return len(res)
 
 
-def solution_12_2(input):
+def phase2(data):
     g = Graph()
-    g.edges = consolidate_graph(input)
+    g.edges = consolidate_graph(data)
     return len(g.connected_components())
 
 
-if __name__ == '__main__':
-    print(solution_12_1(parse_input(get_input(2017, 12))))
-    print(solution_12_2(parse_input(get_input(2017, 12))))
+solution = Solution(2017, 12, phase1=phase1, phase2=phase2, input_parser=parse_input)

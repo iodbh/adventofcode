@@ -1,13 +1,13 @@
-from utils import get_input
+from ...classes import Solution
 
 
-def parse_input(input):
-    return [l.split() for l in input]
+def parse_input(data):
+    return [l.split() for l in data]
 
 
-def solution_4_1(input):
-    valid_count = len(input)
-    for line in input:
+def phase1(data):
+    valid_count = len(data)
+    for line in data:
         while len(line):
             word = line.pop()
             if word in line:
@@ -16,9 +16,9 @@ def solution_4_1(input):
     return valid_count
 
 
-def solution_4_2(input):
-    valid_count = len(input)
-    for line in input:
+def phase2(data):
+    valid_count = len(data)
+    for line in data:
         split_line = [sorted(list(w)) for w in line]
         while len(split_line):
             word = split_line.pop()
@@ -28,6 +28,4 @@ def solution_4_2(input):
     return valid_count
 
 
-if __name__ == '__main__':
-    print(solution_4_1(parse_input(get_input(2017, 4))))
-    print(solution_4_2(parse_input(get_input(2017, 4))))
+solution = Solution(2017, 4, phase1=phase1, phase2=phase2, input_parser=parse_input)

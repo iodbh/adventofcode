@@ -16,8 +16,10 @@ class Queue:
 
 
 class Graph:
-    def __init__(self):
+    def __init__(self, edges=None):
         self.edges = {}
+        if edges is not None:
+            self.edges = edges
         self.came_from = {}
 
     def neighbors(self, id):
@@ -57,6 +59,7 @@ class Graph:
                     for neighbor in self.neighbors(n):
                         if neighbor not in connected:
                             queue.put(neighbor)
+
                     connected.add(n)
                     visited.add(n)
                 out.append(connected)

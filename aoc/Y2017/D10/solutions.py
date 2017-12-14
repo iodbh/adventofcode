@@ -1,5 +1,5 @@
 from ...classes import Solution
-
+from ..functions import knot_hash_string
 
 def hash1(lenghts):
     current_position = 0
@@ -62,19 +62,7 @@ def phase1(data):
 
 def phase2(data):
     input_string = ','.join(data)
-    lenghts = decode_input(input_string)
-    current_position = skip_size = 0
-    l = list(range(256))
-    for _ in range(64):
-        l, current_position, skip_size = hash2(lenghts, l, current_position, skip_size)
-    dense = []
-    for pos in range(16):
-        block = l[16*pos:(16*pos)+16]
-        dense_block = block[0]
-        for byte in block[1:]:
-            dense_block = dense_block ^ byte
-        dense.append(dense_block)
-    return ''.join(f'{d:02x}' for d in dense)
+    return knot_hash_string(input_string)
 
 
 solution = Solution(2017, 10, phase1=phase1, phase2=phase2, input_parser=parse_input)

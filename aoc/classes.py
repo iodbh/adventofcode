@@ -12,7 +12,7 @@ class Solution:
         self.day = day
 
         self.test = test
-        self.input_path = pkg_resources.resource_filename('aoc', f'Y{year}/inputs/{day:02}{_test if self.test else ""}')
+        self.input_path = pkg_resources.resource_filename('aoc', f'Y{year}/inputs/{day:02}{"_test" if self.test else ""}')
         if not isfile(self.input_path):
             raise AOCNoInputException(f'Missing input file for year {year} day {day}')
 

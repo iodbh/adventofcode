@@ -74,7 +74,7 @@ def phase2(data):
         for byte in block[1:]:
             dense_block = dense_block ^ byte
         dense.append(dense_block)
-    return ''.join(f'{d:2x}' for d in dense).replace(' ', '0')
+    return ''.join(f'{d:02x}' for d in dense)
 
 
 solution = Solution(2017, 10, phase1=phase1, phase2=phase2, input_parser=parse_input)

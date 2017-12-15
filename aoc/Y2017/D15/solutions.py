@@ -8,6 +8,7 @@ CRITERIA = {'A': 4, 'B': 8}
 def generate(previous, factor):
     return (previous * factor) % DIVIDER
 
+
 def picky_generator(start_value, factor, criteria):
     value = start_value
     while True:

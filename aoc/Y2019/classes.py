@@ -13,7 +13,7 @@ class IntCode:
     PAR_POSITION = 0
     PAR_IMMEDIATE = 1
 
-    def __init__(self, memory=None, debug=False):
+    def __init__(self, memory=None, debug=False,output="print"):
         if memory is not None:
             self.memory = memory[:]
         else:
@@ -22,6 +22,7 @@ class IntCode:
         self.initial_memory = self.memory[:]
 
         self.ip = 0  # Instruction Pointer
+        self.screen_output = []
 
         if debug:
             self.log = print
@@ -43,7 +44,7 @@ class IntCode:
                 # terminate if there are no more instructions
                 break
             self.execute_next_instruction()
-        return self.memory
+        return self.memory, self.screen_output
 
     def execute_next_instruction(self):
         opcode, parameters = self.parse_instruction(self.ip)
@@ -127,6 +128,7 @@ class IntCode:
         self.ip = None
 
     def op_OUT(self, src):
+        self.screen_output.append(src)
         print(src)
 
     def reset(self):

@@ -3,12 +3,12 @@ from ..classes import IntCode
 
 
 def phase1(data):
-    print(data)
-    return None
+    computer = IntCode(data, debug=True)
+    state, screen_output = computer.run_program()
+    return screen_output[-1]
 
 
 def phase2(data):
-    print(data)
     return None
 
 

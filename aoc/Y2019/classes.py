@@ -5,8 +5,8 @@ class IntCode:
     OPCODES = {
         1: {"name": "ADD", "params": ("val1", "val2", "dst")},
         2: {"name": "MUL", "params": ("val1", "val2", "dst")},
-        3: {"name": "INP", "params": ("dst")},
-        4: {"name": "OUT", "params": ("src")},
+        3: {"name": "INP", "params": ("dst",)},
+        4: {"name": "OUT", "params": ("src",)},
         99: {"name": "EXT", "params": tuple()},
     }
 
@@ -27,7 +27,7 @@ class IntCode:
         if debug:
             self.log = print
         else:
-            self.log = lambda x: None
+            self.log = lambda *x: None
 
     def run_program(self, memory=None, ip=0):
         self.log("[PRG] RUNNING PROGRAM")
@@ -65,7 +65,7 @@ class IntCode:
             parameters_modes = []
         else:
             opcode = int(instruction[-2:])
-            parameters_modes = reversed([int(c) for c in instruction[:-2]])
+            parameters_modes = [int(c) for c in instruction[-3::-1]]
         self.log(f"[PARSE] {self.OPCODES[opcode]['name']} : {instruction} at {address}")
         parameters = []
         for idx, param in enumerate(self.OPCODES[opcode]["params"]):
@@ -94,17 +94,16 @@ class IntCode:
         self.memory[address] = value
 
     def get_parameter_value(self, parval, mode):
-        msg = f"     [GET] param[{parval}]"
+        self.log(f"     [GET] param[{parval}]@{mode}", end="")
         if mode == self.PAR_POSITION:
             value = self.memory[parval]
-            msg += f"->pos->mem[{parval}]"
+            self.log(f"->pos->mem[{parval}]", end="")
         elif mode == self.PAR_IMMEDIATE:
             value = parval
-            msg += f"->dir->{parval}<"
+            self.log(f"->dir->{parval}<", end="")
         else:
             raise ValueError(f"Parameter mode should be either 0 or 1, got {mode}")
-        msg += f"->{value}"
-        self.log(msg)
+        self.log(f"->{value}")
         return value
 
     def op_ADD(self, val1, val2, dst):

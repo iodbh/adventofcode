@@ -2,6 +2,7 @@ import pkg_resources
 from os.path import isfile
 from os import linesep
 from .exceptions import AOCException, AOCNoInputException
+from copy import deepcopy
 
 
 class Solution:
@@ -27,7 +28,7 @@ class Solution:
             input_data = self.parse_input(self._read_input())
             for phase in ("01", "02"):
                 try:
-                    self._result[phase] = self._solve(phase, input_data)
+                    self._result[phase] = self._solve(phase, deepcopy(input_data))
                 except NotImplementedError:
                     self._result[phase] = "Not solved yet !"
         return self._result

@@ -20,10 +20,11 @@ class IntCode:
     PAR_POSITION = 0
     PAR_IMMEDIATE = 1
 
-    def __init__(self, memory=None, debug=False, silent=False):
+    def __init__(self, memory=None, debug=False, silent=False, input_wait=False):
         """
         if silent is set, OUT instructions won't actually print anything
         """
+        # memory state
         if memory is not None:
             self.memory = memory[:]
         else:
@@ -33,12 +34,16 @@ class IntCode:
 
         self.ip = 0  # Instruction Pointer
 
+        # execution pausing
+        self.input_wait = input_wait
+        self.waiting = False
 
         # automation stuff
         self.inputs = []
         self.screen_output = []  # stores output messages
         self.silent = silent
 
+        # debug
         if debug:
             self.log = print
         else:
@@ -46,21 +51,37 @@ class IntCode:
 
     def run_program(self, memory=None, ip=0, inputs=None):
         self.log("[PRG] RUNNING PROGRAM")
-        self.log("[MEM] MEMORY STATE:")
-
+        # set i/o buffers
+        self.screen_output = []
         if inputs is not None:
             self.inputs = inputs[:]
+            self.log(f"[PRG] using input buffer: {self.inputs}")
+        else:
+            self.inputs = []
 
-        self.log(self.memory)
+        # set memory
         if memory is not None:
             self.memory = memory
             self.initial_memory = memory[:]
-        self.ip = ip
+        self.log(f"[MEM] {self.memory}")
+
+        # handle suspension
+        if not self.waiting:
+            # only set the instruction pointer if we're not in suspended mode
+            self.ip = ip
+        else:
+            self.log("[SLEEP] Resuming execution.")
+        self.waiting = False
+
         mem_size = len(self.memory)
         while self.ip is not None:  # run until EXT instruction
             self.log(f"[IP ] {self.ip}")
             if self.ip >= mem_size:
                 # terminate if there are no more instructions
+                break
+            if self.waiting:
+                # return if we are waiting for input
+                self.log(f"[SLEEP] suspending execution")
                 break
             self.execute_next_instruction()
         return self.memory, self.screen_output
@@ -73,6 +94,10 @@ class IntCode:
         except KeyError:
             raise ValueError(f"Invalid opcode: {opcode}")
         self.log(f"[RUN] | {op['name']} | {' '.join(p+':'+str(v) for p, v in zip(op['params'], parameters))}")
+        # suspend execution if we're waiting on input
+        if op["name"] == "INP" and self.input_wait and len(self.inputs) == 0:
+            self.waiting = True
+            return
         getattr(self, op_name)(*parameters)
         if opcode not in (5, 6, 99):  # instructions that set the next instruction
             self.ip += len(op["params"]) + 1
@@ -119,7 +144,7 @@ class IntCode:
             self.log(f"->pos->mem[{parval}]", end="")
         elif mode == self.PAR_IMMEDIATE:
             value = parval
-            self.log(f"->dir->{parval}<", end="")
+            self.log(f"->dir->{parval}", end="")
         else:
             raise ValueError(f"Parameter mode should be either 0 or 1, got {mode}")
         self.log(f"->{value}")
@@ -143,16 +168,20 @@ class IntCode:
         """
         INPut
         """
+        self.log("     [INP] (from:", end="")
         valid = False
         if len(self.inputs):
-            val = self.inputs.pop()
+            self.log("buffer)", end="")
+            val = self.inputs.pop(0)
         else:
             while not valid:
                 try:
                     val = int(input(" > "))
+                    self.log("keyboard)", end="")
                     valid = True
                 except ValueError:
                     print("Invalid input.")
+        self.log(f" mem[{dst}]={val}")
         self.memset(dst, val)
 
     def op_OUT(self, src):
@@ -208,6 +237,9 @@ class IntCode:
     def reset(self):
         self.memory = self.initial_memory[:]
         self.ip = 0
+        self.inputs = []
+        self.screen_output = []
+        self.waiting = False
 
     @classmethod
     def read_code(cls, data):

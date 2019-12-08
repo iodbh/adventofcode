@@ -3,11 +3,20 @@ from os.path import isfile
 from os import linesep
 from .exceptions import AOCException, AOCNoInputException
 from copy import deepcopy
+from typing import Callable, Any, Union, List
 
 
 class Solution:
 
-    def __init__(self, year, day, phase1=None, phase2=None, input_parser=None, test=False):
+    def __init__(
+            self,
+            year: str,
+            day: int,
+            phase1: Callable[[Any], Union[str, int, float]] = None,
+            phase2: Callable[[Any], Union[str, int, float]] = None,
+            input_parser: Callable[[List[str]], Any] = None,
+            test: bool = False
+    ):
 
         self.year = year
         self.day = day

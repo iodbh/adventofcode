@@ -14,11 +14,13 @@ class IntCode:
         6: {"name": "JIF", "params": ("cond", "to")},
         7: {"name": "ILT", "params": ("val1", "val2", "dst")},
         8: {"name": "IEQ", "params": ("val1", "val2", "dst")},
+        9: {"name": "IRB", "params": ("val",)},
         99: {"name": "EXT", "params": tuple()},
     }
 
     PAR_POSITION = 0
     PAR_IMMEDIATE = 1
+    PAR_RELATIVE = 2
 
     def __init__(self, memory=None, debug=False, silent=False, input_wait=False):
         """
@@ -31,6 +33,7 @@ class IntCode:
             self.memory = []
 
         self.initial_memory = self.memory[:]
+        self.relative_base = 0
 
         self.ip = 0  # Instruction Pointer
 
@@ -121,6 +124,8 @@ class IntCode:
             parval = self.memory[parameter_address]
             if param == "dst":  # destination parameters shouldn't be dereferenced
                 value = parval
+                if mode == self.PAR_RELATIVE:
+                    value += self.relative_base
             else:
                 value = self.get_parameter_value(parval, mode)
 
@@ -134,19 +139,43 @@ class IntCode:
 
         return opcode, parameters
 
-    def memset(self, address, value):
+    @property
+    def memlen(self):
+        if not hasattr(self, "_memlen"):
+            self._memlen = len(self.memory)
+        return self._memlen
+
+    def mem_allocate(self, address: int):
+        """
+        Extends memory if the current list is too small to reach the given
+        address.
+        """
+        if address >= self.memlen:
+            self.log(f"     [MEM] Extend --> {address}", end="")
+            self.memory += [0 for _ in range(address + 1 - self.memlen)]
+            self._memlen = len(self.memory)
+            self.log(f" | newlen: {self._memlen}")
+
+    def memset(self, address: int, value: int):
+        self.mem_allocate(address)
         self.memory[address] = value
 
-    def get_parameter_value(self, parval, mode):
+    def memget(self, address: int):
+        self.mem_allocate(address)
+        return self.memory[address]
+
+    def get_parameter_value(self, parval: int, mode: int):
         self.log(f"     [GET] param[{parval}]@{mode}", end="")
         if mode == self.PAR_POSITION:
-            value = self.memory[parval]
+            value = self.memget(parval)
             self.log(f"->pos->mem[{parval}]", end="")
         elif mode == self.PAR_IMMEDIATE:
             value = parval
             self.log(f"->dir->{parval}", end="")
+        elif mode == self.PAR_RELATIVE:
+            return self.memget(parval+self.relative_base)
         else:
-            raise ValueError(f"Parameter mode should be either 0 or 1, got {mode}")
+            raise ValueError(f"Parameter mode should be either 0, 2 or 3;  got {mode}")
         self.log(f"->{value}")
         return value
 
@@ -234,12 +263,20 @@ class IntCode:
         """
         self.ip = None
 
+    def op_IRB(self, val):
+        """
+        Increment Relative Base
+        """
+        self.relative_base += val
+
     def reset(self):
         self.memory = self.initial_memory[:]
+        self._memlen = len(self.memory)
         self.ip = 0
         self.inputs = []
         self.screen_output = []
         self.waiting = False
+        self.relative_base = 0
 
     @classmethod
     def read_code(cls, data):

@@ -1,5 +1,5 @@
 from ...classes import Solution
-import unicodedata
+
 
 COLORS = {
     "0": f'\033[40m  \033[0m',

@@ -66,7 +66,6 @@ class HullPaintingRobot:
 
     @property
     def hull(self):
-        print("checking hull")
         minx = min(point.x for point in self.painted_positions)
         miny = min(point.y for point in self.painted_positions)
         if minx < 0:
@@ -105,4 +104,4 @@ def phase2(data):
     return "\n"+("\n".join(line for line in robot.hull))
 
 
-solution = Solution(2019, 11, phase2=phase2, input_parser=IntCode.read_code, test=False)
+solution = Solution(2019, 11, phase2=phase2, input_parser=IntCode.read_code)

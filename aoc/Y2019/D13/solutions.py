@@ -173,4 +173,4 @@ def phase2(data):
     return cabinet.score
 
 
-solution = Solution(2019, 13, phase2=phase2, input_parser=IntCode.read_code)
+solution = Solution(2019, 13, phase1=phase1, phase2=phase2, input_parser=IntCode.read_code)

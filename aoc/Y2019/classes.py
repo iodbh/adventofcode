@@ -1,3 +1,6 @@
+import curses
+
+
 class IntCode:
     """
     An IntCode Computer
@@ -288,3 +291,54 @@ class IntCode:
             output.extend(int(val) for val in line.strip().split(","))
         return output
 
+
+class Screen:
+
+    def __init__(self, width, height, tiles, scr=None, wrapped=False, virtual=False, colors=None):
+        self.width = width
+        self.height = height
+        self.scr = scr
+        self.wrapped = wrapped
+        self.tiles = tiles
+        if not virtual and colors is not None:
+            for cid, colorpair in colors.items():
+                curses.init_pair(cid, *colorpair)
+
+    def draw_tile(self, x, y, tile, refresh=True):
+        tilespec = self.tiles[tile]
+        if "colors" in tilespec:
+            self.scr.addstr(*self._coords(x, y), tilespec["str"], curses.color_pair(tilespec["colors"]))
+        else:
+            self.scr.addstr(*self._coords(x, y), tilespec["str"])
+        self.scr.refresh()
+
+    def draw_many_tiles(self, tiles):
+        for x, y, tile in tiles:
+            self.draw_tile(x, y, tile, refresh=False)
+        self.scr.refresh()
+
+    def _coords(self, x, y):
+        """
+        Returns the coordinates inverted to match curse's format, and x is
+        doubled to match the 2-cols drawing system.
+        """
+        return y, x * 2
+
+    def _setup_window(self):
+        if self.width * 2 > curses.COLS or self.height > curses.LINES:
+            raise ValueError(f"The screen size exceeds the terminal size. max height: {curses.COLS//2}. Max width: {curses.LINES}")
+        self.win = curses.newwin(self.width, self.height)
+
+    def setup(self):
+        stdscr = curses.initscr()
+        curses.start_color()
+        curses.noecho()
+        curses.cbreak()
+        stdscr.keypad(True)
+
+    def shutdown(self):
+        curses.nocbreak()
+        if self.scr:
+            self.scr.keypad(False)
+        curses.echo()
+        curses.endwin()

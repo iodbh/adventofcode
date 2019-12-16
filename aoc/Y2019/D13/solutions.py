@@ -1,5 +1,5 @@
 from ...classes import Solution
-from ..classes import IntCode
+from ..classes import IntCode, Screen
 from time import sleep
 import curses
 import unicodedata
@@ -17,6 +17,12 @@ ARCADE_TILES = {
     4: {"str": unicodedata.lookup("LEFT HALF BLACK CIRCLE") + unicodedata.lookup("RIGHT HALF BLACK CIRCLE"), "name": "ball", "colors": 3}
 }
 
+ARCADE_COLORS = {
+    1: (curses.COLOR_CYAN, curses.COLOR_CYAN),
+    2: (curses.COLOR_WHITE, curses.COLOR_WHITE),
+    3: (curses.COLOR_RED, curses.COLOR_BLACK),
+}
+
 
 def chunk(iter, size):
     for i in range(0, len(iter), size):
@@ -28,7 +34,7 @@ class ArcadeCabinet:
         self.cpu = IntCode(program, silent=True, input_wait=True)
         self.screen_width = screen_width
         self.screen_height = screen_height + 1
-        self.screen = Screen(self.screen_width, self.screen_height, scr=scr, virtual=not display)
+        self.screen = Screen(self.screen_width, self.screen_height, ARCADE_TILES, scr=scr, virtual=not display, colors=ARCADE_COLORS)
         self.screen_state = [[0 for col in range(self.screen_width)] for line in range(screen_height)]
         self.display = display
         self.joystick = 0
@@ -99,54 +105,6 @@ class ArcadeCabinet:
             while True:
                 pass
         return self.score
-
-
-class Screen:
-
-    def __init__(self, width, height, scr=None, wrapped=False, tiles=ARCADE_TILES, virtual=False):
-        self.width = width
-        self.height = height
-        self.scr = scr
-        self.wrapped = wrapped
-        self.tiles = tiles
-        if not virtual:
-            curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_CYAN)
-            curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_WHITE)
-            curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
-
-    def draw_tile(self, x, y, tile):
-        tilespec = self.tiles[tile]
-        if "colors" in tilespec:
-            self.scr.addstr(*self._coords(x, y), tilespec["str"], curses.color_pair(tilespec["colors"]))
-        else:
-            self.scr.addstr(*self._coords(x, y), tilespec["str"])
-        self.scr.refresh()
-
-    def _coords(self, x, y):
-        """
-        Returns the coordinates inverted to match curse's format, and x is
-        doubled to match the 2-cols drawing system.
-        """
-        return y, x * 2
-
-    def _setup_window(self):
-        if self.width * 2 > curses.COLS or self.height > curses.LINES:
-            raise ValueError(f"The screen size exceeds the terminal size. max height: {curses.COLS//2}. Max width: {curses.LINES}")
-        self.win = curses.newwin(self.width, self.height)
-
-    def setup(self):
-        stdscr = curses.initscr()
-        curses.start_color()
-        curses.noecho()
-        curses.cbreak()
-        stdscr.keypad(True)
-
-    def shutdown(self):
-        curses.nocbreak()
-        if self.scr:
-            self.scr.keypad(False)
-        curses.echo()
-        curses.endwin()
 
 
 def display_loop(scr, data, display=False, autoplay=False, loop=False):
